@@ -18,10 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Repository\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Fiap.App.Aluno.Domain\Fiap.App.Aluno.Domain.csproj" />
   </ItemGroup>
 
