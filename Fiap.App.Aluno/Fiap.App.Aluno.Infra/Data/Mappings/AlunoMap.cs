@@ -22,7 +22,7 @@ namespace Fiap.App.Aluno.Infra.Data.Mappings
             builder.Property(p => p.Senha)
                 .HasColumnName("senha")
                 .IsRequired()
-                .HasColumnType("char(60)");
+                .HasColumnType("varchar(60)");
 
             builder.ToTable("aluno");
         }

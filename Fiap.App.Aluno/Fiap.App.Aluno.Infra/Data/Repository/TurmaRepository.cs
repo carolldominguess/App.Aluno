@@ -25,13 +25,19 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
 
         public async Task<IEnumerable<Domain.Entidades.Turma>> GetAllTurmasAsync()
         {
-            var query = "SELECT * FROM Turmas";
+            var query = "SELECT * FROM turmas";
             return await dbConnection.QueryAsync<Domain.Entidades.Turma>(query);
+        }
+
+        public async Task<IEnumerable<string>> GetByNomeAsync(string nome)
+        {
+            var query = "SELECT nome FROM turmas WHERE nome = @nome";
+            return await dbConnection.QueryFirstOrDefaultAsync<IEnumerable<string>>(query, new { Nome = nome });
         }
 
         public async Task<Domain.Entidades.Turma> GetTurmaByIdAsync(Guid id)
         {
-            var query = "SELECT * FROM Turmas WHERE Id = @id";
+            var query = "SELECT * FROM turmas WHERE Id = @id";
             return await dbConnection.QueryFirstOrDefaultAsync<Domain.Entidades.Turma>(query, new { Id = id });
         }
     }

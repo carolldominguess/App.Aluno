@@ -1,6 +1,6 @@
-﻿namespace Fiap.App.Aluno.Domain.Entidades
+﻿namespace Fiap.App.Aluno.Application.Model
 {
-    public class Aluno : Entity
+    public class AlunoDto
     {
         public string Nome { get; set; } = null!;
         public string Usuario { get; set; } = null!;

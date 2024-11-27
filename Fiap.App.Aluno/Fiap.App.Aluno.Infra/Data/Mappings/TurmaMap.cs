@@ -19,7 +19,7 @@ namespace Fiap.App.Aluno.Infra.Data.Mappings
                 .HasColumnName("ano")
                 .IsRequired();
 
-            builder.ToTable("turma");
+            builder.ToTable("turmas");
         }
     }
 }
