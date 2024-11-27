@@ -2,11 +2,10 @@
 {
     public abstract class Entity
     {
-        protected Entity(Guid id, DateTime dataCriacao, DateTime? dataModificacao)
+        protected Entity()
         {
-            Id = id;
-            DataCriacao = dataCriacao;
-            DataModificacao = dataModificacao;
+            Id = Guid.NewGuid();
+            DataCriacao = DateTime.Now;
         }
 
         public Guid Id { get; set; }
