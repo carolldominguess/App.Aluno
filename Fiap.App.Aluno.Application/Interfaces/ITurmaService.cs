@@ -8,7 +8,7 @@ namespace Fiap.App.Aluno.Application.Interfaces
         Task<ResultadoOperacao> AddTurmaAsync(TurmaDto turmaDto);
         Task<IEnumerable<TurmaDto>> GetAllTurmasAsync();
         Task<TurmaDto> GetTurmaByIdAsync(Guid id);
-        //Task<ResultadoOperacao> UpdateTurmaAsync(Guid id, TurmaDto turmaDto);
-        //Task<ResultadoOperacao> DeleteTurmaAsync(Guid id);
+        Task<ResultadoOperacao> UpdateTurmaAsync(Guid id, TurmaDto turmaDto);
+        Task<ResultadoOperacao> DeactivateTurmaAsync(Guid id);
     }
 }

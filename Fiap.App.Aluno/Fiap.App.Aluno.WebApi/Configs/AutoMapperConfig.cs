@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Fiap.App.Aluno.Application.Model;
 
 namespace Fiap.App.Aluno.WebApi.Configs
 {
@@ -6,7 +7,9 @@ namespace Fiap.App.Aluno.WebApi.Configs
     {
         public AutoMapperConfig()
         {
-            //CreateMap<Produto, ProdutoDto>().ReverseMap();
+            CreateMap<Domain.Entidades.Aluno, AlunoDto>().ReverseMap();
+            CreateMap<Domain.Entidades.Turma, TurmaDto>().ReverseMap();
+            CreateMap<Domain.Entidades.AlunoTurma, AlunoTurmaDto>().ReverseMap();
         }
     }
 }

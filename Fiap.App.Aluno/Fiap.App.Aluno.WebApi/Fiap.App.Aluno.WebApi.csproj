@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Fiap.App.Aluno.Application\Fiap.App.Aluno.Application.csproj" />
     <ProjectReference Include="..\Fiap.App.Aluno.Infra\Fiap.App.Aluno.Infra.csproj" />
   </ItemGroup>
 

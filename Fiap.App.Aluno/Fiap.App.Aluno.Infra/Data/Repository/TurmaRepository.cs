@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Fiap.App.Aluno.Domain.Entidades;
 using Fiap.App.Aluno.Domain.Interfaces;
 using Fiap.App.Aluno.Infra.Context;
 using Microsoft.Data.SqlClient;
@@ -19,8 +20,31 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         }
         public async Task AddTurmaAsync(Domain.Entidades.Turma turma)
         {
-            await context.Turmas.AddAsync(turma);
-            await context.SaveChangesAsync();
+            var query = @"
+                INSERT INTO Turmas (Id, Nome, Ano, Ativo)
+                VALUES (@Id, @Nome, @Ano, @Ativo)";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                turma.Id,
+                turma.Nome,
+                turma.Ano,
+                turma.Ativo
+            });
+        }
+
+        public async Task DeactivateAsync(Guid id)
+        {
+            var query = @"
+                    UPDATE turmas
+                    SET Ativo = @Ativo
+                    WHERE Id = @Id";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                Ativo = false,
+                Id = id
+            });
         }
 
         public async Task<IEnumerable<Domain.Entidades.Turma>> GetAllTurmasAsync()
@@ -29,16 +53,32 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
             return await dbConnection.QueryAsync<Domain.Entidades.Turma>(query);
         }
 
-        public async Task<IEnumerable<string>> GetByNomeAsync(string nome)
+        public async Task<IEnumerable<Domain.Entidades.Turma>> GetByNomeAsync(string nome)
         {
             var query = "SELECT nome FROM turmas WHERE nome = @nome";
-            return await dbConnection.QueryFirstOrDefaultAsync<IEnumerable<string>>(query, new { Nome = nome });
+            return await dbConnection.QueryFirstOrDefaultAsync<IEnumerable<Domain.Entidades.Turma>>(query, new { Nome = nome });
         }
 
         public async Task<Domain.Entidades.Turma> GetTurmaByIdAsync(Guid id)
         {
             var query = "SELECT * FROM turmas WHERE Id = @id";
             return await dbConnection.QueryFirstOrDefaultAsync<Domain.Entidades.Turma>(query, new { Id = id });
+        }
+
+        public async Task UpdateAsync(Turma turma)
+        {
+            var query = @"
+                UPDATE turmas
+                SET nome = @Nome,
+                    ano = @Ano
+                WHERE Id = @Id";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                turma.Nome,
+                turma.Ano,
+                turma.Id
+            });
         }
     }
 }

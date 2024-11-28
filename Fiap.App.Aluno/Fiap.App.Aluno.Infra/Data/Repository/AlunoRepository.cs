@@ -21,8 +21,18 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
 
         public async Task AddAlunoAsync(Domain.Entidades.Aluno aluno)
         {
-            await context.Alunos.AddAsync(aluno);
-            await context.SaveChangesAsync();
+            var query = @"
+                INSERT INTO Alunos (Id, Nome, Email, Senha, Ativo)
+                VALUES (@Id, @Nome, @Email, @Senha, @Ativo)";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                aluno.Id,
+                aluno.Nome,
+                aluno.Usuario,
+                aluno.Senha,
+                aluno.Ativo
+            });
         }
 
         public async Task<IEnumerable<Domain.Entidades.Aluno>> GetAllAlunosAsync()

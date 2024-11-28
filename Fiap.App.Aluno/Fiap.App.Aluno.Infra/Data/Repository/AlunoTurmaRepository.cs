@@ -20,8 +20,17 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
 
         public async Task AddAlunoTurmaAsync(Domain.Entidades.AlunoTurma alunoTurma)
         {
-            await context.AlunosTurmas.AddAsync(alunoTurma);
-            await context.SaveChangesAsync();
+            var query = @"
+                    INSERT INTO AlunoTurma (Id, AlunoId, TurmaId, Ativo)
+                    VALUES (@Id, @AlunoId, @TurmaId, @Ativo)";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                alunoTurma.Id,
+                alunoTurma.AlunoId,
+                alunoTurma.TurmaId,
+                alunoTurma.Ativo
+            });
         }
 
         public async Task<IEnumerable<Domain.Entidades.AlunoTurma>> GetAllAlunosTurmasAsync()
@@ -46,6 +55,21 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         {
             var query = "SELECT * FROM AlunosTurmas WHERE AlunoId = @alunoId AND TurmaId = @turmaId";
             return await dbConnection.QueryFirstOrDefaultAsync<Domain.Entidades.AlunoTurma>(query, new { AlunoId = alunoId, TurmaId = turmaId });
+        }
+
+        public async Task DeactivateAsync(Guid alunoId, Guid turmaId)
+        {
+            var query = @"
+                UPDATE AlunoTurma
+                SET Ativo = @Ativo
+                WHERE AlunoId = @AlunoId AND TurmaId = @TurmaId";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                Ativo = false,
+                AlunoId = alunoId,
+                TurmaId = turmaId
+            });
         }
     }
 }

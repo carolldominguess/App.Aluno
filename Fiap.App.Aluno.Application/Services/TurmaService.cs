@@ -1,4 +1,5 @@
-﻿using Fiap.App.Aluno.Application.Interfaces;
+﻿using AutoMapper;
+using Fiap.App.Aluno.Application.Interfaces;
 using Fiap.App.Aluno.Application.Model;
 using Fiap.App.Aluno.Application.Utils;
 using Fiap.App.Aluno.Domain.Entidades;
@@ -10,30 +11,24 @@ namespace Fiap.App.Aluno.Application.Services
     public class TurmaService : ITurmaService
     {
         private readonly ITurmaRepository _turmaRepository;
+        private readonly IMapper _mapper;
 
-        public TurmaService(ITurmaRepository turmaRepository)
+        public TurmaService(ITurmaRepository turmaRepository, IMapper mapper)
         {
             _turmaRepository = turmaRepository;
+            _mapper = mapper;
         }
 
         public async Task<ResultadoOperacao> AddTurmaAsync(TurmaDto turmaDto)
         {
-            // Verifica se já existe uma turma com o mesmo nome
-            var turmaExistente = await _turmaRepository.GetByNomeAsync(turmaDto.Nome);
+            var turma = _mapper.Map<TurmaDto, Turma>(turmaDto);
+
+            var turmaExistente = await _turmaRepository.GetByNomeAsync(turma.Nome);
             if (turmaExistente != null && turmaExistente.Any())
             {
                 return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
             }
 
-            // Cria a turma e salva
-            var turma = new Turma
-            {
-                Id = Guid.NewGuid(),
-                Nome = turmaDto.Nome,
-                Ano = turmaDto.Ano
-            };
-
-            // Valida os dados da turma
             var validationResult = new TurmaValidator().Validate(turma);
 
             if (!validationResult.IsValid)
@@ -59,46 +54,45 @@ namespace Fiap.App.Aluno.Application.Services
             return new TurmaDto { Nome = turma.Nome, Ano = turma.Ano };
         }
 
-        //public async Task<ResultadoOperacao> UpdateTurmaAsync(Guid id, TurmaDto turmaDto)
-        //{
-        //    // Valida os dados da turma
-        //    var validationResult = await _validator.ValidateAsync(turmaDto);
-        //    if (!validationResult.IsValid)
-        //    {
-        //        return new ResultadoOperacao(false, string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
-        //    }
+        public async Task<ResultadoOperacao> UpdateTurmaAsync(Guid id, TurmaDto turmaDto)
+        {
+            var turmaExistente = await _turmaRepository.GetTurmaByIdAsync(id);
+            if (turmaExistente == null)
+            {
+                return new ResultadoOperacao(false, "Turma não encontrada.");
+            }
 
-        //    var turmaExistente = await _turmaRepository.GetTurmaByIdAsync(id);
-        //    if (turmaExistente == null)
-        //    {
-        //        return new ResultadoOperacao(false, "Turma não encontrada.");
-        //    }
+            var turmaComMesmoNome = await _turmaRepository.GetByNomeAsync(turmaDto.Nome);
+            if (turmaComMesmoNome != null && turmaComMesmoNome.Select(t => t.Id).Contains(id))
+            {
+                return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
+            }
 
-        //    // Verifica se o nome já está em uso por outra turma
-        //    var turmaComMesmoNome = await _turmaRepository.GetByNomeAsync(turmaDto.Nome);
-        //    if (turmaComMesmoNome != null && turmaComMesmoNome.Id != id)
-        //    {
-        //        return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
-        //    }
+            turmaExistente.Nome = turmaDto.Nome;
+            turmaExistente.Ano = turmaDto.Ano;
+            turmaExistente.DataModificacao = DateTime.Now;
 
-        //    // Atualiza os dados da turma
-        //    turmaExistente.Nome = turmaDto.Nome;
-        //    turmaExistente.Ano = turmaDto.Ano;
+            var validationResult = new TurmaValidator().Validate(turmaExistente);
 
-        //    await _turmaRepository.UpdateAsync(turmaExistente);
-        //    return new ResultadoOperacao(true, "Turma atualizada com sucesso.");
-        //}
+            if (!validationResult.IsValid)
+            {
+                return new ResultadoOperacao(false, "Turma invalida: " + string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            }
 
-        //public async Task<ResultadoOperacao> DeleteTurmaAsync(Guid id)
-        //{
-        //    var turma = await _turmaRepository.GetTurmaByIdAsync(id);
-        //    if (turma == null)
-        //    {
-        //        return new ResultadoOperacao(false, "Turma não encontrada.");
-        //    }
+            await _turmaRepository.UpdateAsync(turmaExistente);
+            return new ResultadoOperacao(true, "Turma atualizada com sucesso.");
+        }
 
-        //    await _turmaRepository.DeleteAsync(turma);
-        //    return new ResultadoOperacao(true, "Turma removida com sucesso.");
-        //}
+        public async Task<ResultadoOperacao> DeactivateTurmaAsync(Guid id)
+        {
+            var turma = await _turmaRepository.GetTurmaByIdAsync(id);
+            if (turma == null)
+            {
+                return new ResultadoOperacao(false, "Turma não encontrada.");
+            }
+
+            await _turmaRepository.DeactivateAsync(id);
+            return new ResultadoOperacao(true, "Turma desativada com sucesso.");
+        }
     }
 }
