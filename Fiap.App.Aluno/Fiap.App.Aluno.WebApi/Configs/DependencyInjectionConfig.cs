@@ -1,4 +1,6 @@
-﻿using Fiap.App.Aluno.Domain.Interfaces;
+﻿using Fiap.App.Aluno.Application.Interfaces;
+using Fiap.App.Aluno.Application.Services;
+using Fiap.App.Aluno.Domain.Interfaces;
 using Fiap.App.Aluno.Infra.Context;
 using Fiap.App.Aluno.Infra.Data;
 using Fiap.App.Aluno.Infra.Data.Repository;
@@ -19,6 +21,8 @@ namespace Fiap.App.Aluno.WebApi.Configs
             #endregion
 
             #region Services
+            services.AddScoped<IAlunoService, AlunoService>();
+            services.AddScoped<ITurmaService, TurmaService>();
             #endregion
 
             return services;

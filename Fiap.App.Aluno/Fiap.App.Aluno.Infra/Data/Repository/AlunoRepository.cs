@@ -22,8 +22,8 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         public async Task AddAlunoAsync(Domain.Entidades.Aluno aluno)
         {
             var query = @"
-                INSERT INTO Alunos (Id, Nome, Email, Senha, Ativo)
-                VALUES (@Id, @Nome, @Email, @Senha, @Ativo)";
+                INSERT INTO Alunos (Id, Nome, Usuario, Senha, Ativo)
+                VALUES (@Id, @Nome, @Usuario, @Senha, @Ativo)";
 
             await dbConnection.ExecuteAsync(query, new
             {
@@ -45,6 +45,38 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         {
             var query = "SELECT * FROM Alunos WHERE Id = @id";
             return await dbConnection.QueryFirstOrDefaultAsync<Domain.Entidades.Aluno>(query, new { Id = id });
+        }
+
+        public async Task UpdateAlunoAsync(Domain.Entidades.Aluno aluno)
+        {
+            var query = @"
+                UPDATE Alunos
+                SET Nome = @Nome,
+                    Usuario = @Usuario,
+                    Senha = @Senha
+                WHERE Id = @Id";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                aluno.Nome,
+                aluno.Usuario,
+                aluno.Senha,
+                aluno.Id
+            });
+        }
+
+        public async Task DeactivateAlunoAsync(Guid id)
+        {
+            var query = @"
+                UPDATE Alunos
+                SET Ativo = @Ativo
+                WHERE Id = @Id";
+
+            await dbConnection.ExecuteAsync(query, new
+            {
+                Ativo = false,
+                Id = id
+            });
         }
     }
 }
