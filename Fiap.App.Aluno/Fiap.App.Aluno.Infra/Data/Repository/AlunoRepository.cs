@@ -1,22 +1,17 @@
 ﻿using Dapper;
 using Fiap.App.Aluno.Domain.Interfaces;
-using Fiap.App.Aluno.Infra.Context;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace Fiap.App.Aluno.Infra.Data.Repository
 {
     public class AlunoRepository : IAlunoRepository
     {
-        private readonly IDbConnection dbConnection;
-        private readonly ApplicationDbContext context;
+        private readonly IDbConnection _dbConnection;
 
-        public AlunoRepository(IConfiguration configuration, ApplicationDbContext context)
+        public AlunoRepository(IDbConnection dbConnection)
         {
-            this.dbConnection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-            this.context = context;
+            _dbConnection = dbConnection;
         }
 
         public async Task AddAlunoAsync(Domain.Entidades.Aluno aluno)
@@ -25,7 +20,7 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
                 INSERT INTO Alunos (Id, Nome, Usuario, Senha, Ativo)
                 VALUES (@Id, @Nome, @Usuario, @Senha, @Ativo)";
 
-            await dbConnection.ExecuteAsync(query, new
+            await _dbConnection.ExecuteAsync(query, new
             {
                 aluno.Id,
                 aluno.Nome,
@@ -38,13 +33,13 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         public async Task<IEnumerable<Domain.Entidades.Aluno>> GetAllAlunosAsync()
         {
             var query = "SELECT * FROM Alunos";
-            return await dbConnection.QueryAsync<Domain.Entidades.Aluno>(query);
+            return await _dbConnection.QueryAsync<Domain.Entidades.Aluno>(query);
         }
 
         public async Task<Domain.Entidades.Aluno> GetAlunoByIdAsync(Guid id)
         {
             var query = "SELECT * FROM Alunos WHERE Id = @id";
-            return await dbConnection.QueryFirstOrDefaultAsync<Domain.Entidades.Aluno>(query, new { Id = id });
+            return await _dbConnection.QueryFirstOrDefaultAsync<Domain.Entidades.Aluno>(query, new { Id = id });
         }
 
         public async Task UpdateAlunoAsync(Domain.Entidades.Aluno aluno)
@@ -56,7 +51,7 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
                     Senha = @Senha
                 WHERE Id = @Id";
 
-            await dbConnection.ExecuteAsync(query, new
+            await _dbConnection.ExecuteAsync(query, new
             {
                 aluno.Nome,
                 aluno.Usuario,
@@ -72,7 +67,7 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
                 SET Ativo = @Ativo
                 WHERE Id = @Id";
 
-            await dbConnection.ExecuteAsync(query, new
+            await _dbConnection.ExecuteAsync(query, new
             {
                 Ativo = false,
                 Id = id

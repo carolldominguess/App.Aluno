@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fiap.App.Aluno.WebApi", "Fi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fiap.App.Aluno.Application", "..\Fiap.App.Aluno.Application\Fiap.App.Aluno.Application.csproj", "{4BD9F4CF-964A-4511-BB3F-F7C66CC4A41C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fiap.App.Aluno.Tests", "Fiap.App.Aluno.Tests\Fiap.App.Aluno.Tests.csproj", "{D143A731-83AE-4FE1-97B4-3A54E1DC14CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{4BD9F4CF-964A-4511-BB3F-F7C66CC4A41C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BD9F4CF-964A-4511-BB3F-F7C66CC4A41C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BD9F4CF-964A-4511-BB3F-F7C66CC4A41C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D143A731-83AE-4FE1-97B4-3A54E1DC14CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D143A731-83AE-4FE1-97B4-3A54E1DC14CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D143A731-83AE-4FE1-97B4-3A54E1DC14CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D143A731-83AE-4FE1-97B4-3A54E1DC14CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

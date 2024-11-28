@@ -2,6 +2,7 @@
 using Fiap.App.Aluno.Application.Interfaces;
 using Fiap.App.Aluno.Application.Model;
 using Fiap.App.Aluno.Application.Utils;
+using Fiap.App.Aluno.Domain.Entidades;
 using Fiap.App.Aluno.Domain.Entidades.Validations;
 using Fiap.App.Aluno.Domain.Interfaces;
 
@@ -13,10 +14,10 @@ namespace Fiap.App.Aluno.Application.Services
         private readonly IAlunoTurmaRepository _alunoTurmaRepository;
         private readonly ITurmaRepository _turmaRepository;
         private readonly IMapper _mapper;
-        private readonly SenhaHasher _senhaHasher;
-        private readonly SenhaValidator _senhaValidator;
+        private readonly ISenhaHasher _senhaHasher;
+        private readonly ISenhaValidator _senhaValidator;
 
-        public AlunoService(IAlunoRepository alunoRepository, IAlunoTurmaRepository alunoTurmaRepository, ITurmaRepository turmaRepository, IMapper mapper, SenhaHasher senhaHasher, SenhaValidator senhaValidator)
+        public AlunoService(IAlunoRepository alunoRepository, IAlunoTurmaRepository alunoTurmaRepository, ITurmaRepository turmaRepository, IMapper mapper, ISenhaHasher senhaHasher, ISenhaValidator senhaValidator)
         {
             _alunoRepository = alunoRepository;
             _alunoTurmaRepository = alunoTurmaRepository;
@@ -35,7 +36,7 @@ namespace Fiap.App.Aluno.Application.Services
 
             var hashSenha = _senhaHasher.CriarHash(new string(alunoDto.Senha));
 
-            var aluno = _mapper.Map<AlunoDto, Domain.Entidades.Aluno>(alunoDto);
+            var aluno = _mapper.Map<Domain.Entidades.Aluno>(alunoDto);
 
             var validate = new AlunoValidator().Validate(aluno);
 
@@ -44,12 +45,12 @@ namespace Fiap.App.Aluno.Application.Services
                 return new ResultadoOperacao(false, "Aluno invalido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
             }
 
-            var alunoTurma  = _mapper.Map<AlunoTurmaDto, Domain.Entidades.AlunoTurma>(alunoTurmaDto);
+            var alunoTurma  = _mapper.Map<Domain.Entidades.AlunoTurma>(alunoTurmaDto);
             alunoTurma.AlunoId = aluno.Id;
 
-            var ehTurmaExistente = _turmaRepository.GetTurmaByIdAsync(alunoTurma.TurmaId) is not null;
+            var turmaExistente = await _turmaRepository.GetTurmaByIdAsync(alunoTurma.TurmaId);
 
-            if (!ehTurmaExistente)
+            if (turmaExistente is null)
             {
                 return new ResultadoOperacao(false, "Turma vinculada não existe!");
             }
@@ -73,7 +74,7 @@ namespace Fiap.App.Aluno.Application.Services
                 return new ResultadoOperacao(false, "A senha não atende aos requisitos de segurança.");
             }
 
-            var alunoAtualizado = _mapper.Map<AlunoDto, Domain.Entidades.Aluno>(alunoDto);
+            var alunoAtualizado = _mapper.Map<Domain.Entidades.Aluno>(alunoDto);
             alunoAtualizado.Id = id;
 
             if (alunoDto.Senha != null)
@@ -95,7 +96,7 @@ namespace Fiap.App.Aluno.Application.Services
             return new ResultadoOperacao(true, "Aluno atualizado com sucesso.");
         }
 
-        public async Task<Domain.Entidades.Aluno> GetAlunoByIdAsync(Guid id)
+        public async Task<AlunoDto> GetAlunoByIdAsync(Guid id)
         {
             var aluno = await _alunoRepository.GetAlunoByIdAsync(id);
             if (aluno == null)
@@ -103,10 +104,10 @@ namespace Fiap.App.Aluno.Application.Services
                 throw new KeyNotFoundException("Aluno não encontrado.");
             }
 
-            return aluno;
+            return _mapper.Map<AlunoDto>(aluno);
         }
 
-        public async Task<IEnumerable<Domain.Entidades.Aluno>> GetAllAlunosAsync()
+        public async Task<IEnumerable<AlunoDto>> GetAllAlunosAsync()
         {
             var alunos = await _alunoRepository.GetAllAlunosAsync();
             if (alunos == null || !alunos.Any())
@@ -114,7 +115,7 @@ namespace Fiap.App.Aluno.Application.Services
                 throw new KeyNotFoundException("Nenhum aluno encontrado.");
             }
 
-            return alunos;
+            return _mapper.Map<IEnumerable<AlunoDto>>(alunos);
         }
 
         public async Task<ResultadoOperacao> DeactivateAlunoAsync(Guid id)

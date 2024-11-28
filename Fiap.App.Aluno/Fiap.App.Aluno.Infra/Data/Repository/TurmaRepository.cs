@@ -56,7 +56,8 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         public async Task<IEnumerable<Domain.Entidades.Turma>> GetByNomeAsync(string nome)
         {
             var query = "SELECT nome FROM turmas WHERE nome = @nome";
-            return await dbConnection.QueryFirstOrDefaultAsync<IEnumerable<Domain.Entidades.Turma>>(query, new { Nome = nome });
+            var resultado = await dbConnection.QueryAsync<Domain.Entidades.Turma>(query, new { Nome = nome });
+            return resultado ?? Enumerable.Empty<Domain.Entidades.Turma>();
         }
 
         public async Task<Domain.Entidades.Turma> GetTurmaByIdAsync(Guid id)

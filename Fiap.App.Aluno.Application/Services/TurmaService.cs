@@ -21,7 +21,7 @@ namespace Fiap.App.Aluno.Application.Services
 
         public async Task<ResultadoOperacao> AddTurmaAsync(TurmaDto turmaDto)
         {
-            var turma = _mapper.Map<TurmaDto, Turma>(turmaDto);
+            var turma = _mapper.Map<Turma>(turmaDto);
 
             var turmaExistente = await _turmaRepository.GetByNomeAsync(turma.Nome);
             if (turmaExistente != null && turmaExistente.Any())
@@ -71,6 +71,7 @@ namespace Fiap.App.Aluno.Application.Services
             turmaExistente.Nome = turmaDto.Nome;
             turmaExistente.Ano = turmaDto.Ano;
             turmaExistente.DataModificacao = DateTime.Now;
+
 
             var validationResult = new TurmaValidator().Validate(turmaExistente);
 

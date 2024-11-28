@@ -1,8 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using Fiap.App.Aluno.Application.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Fiap.App.Aluno.Application.Utils
 {
-    public class SenhaValidator
+    public class SenhaValidator : ISenhaValidator
     {
         public bool ValidarSenha(string senha)
         {

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using Fiap.App.Aluno.Application.Interfaces;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace Fiap.App.Aluno.Application.Utils
 {
-    public class SenhaHasher
+    public class SenhaHasher : ISenhaHasher
     {
         public string CriarHash(string senha)
         {
