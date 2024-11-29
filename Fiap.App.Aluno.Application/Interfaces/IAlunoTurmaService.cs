@@ -10,5 +10,7 @@ namespace Fiap.App.Aluno.Application.Interfaces
         Task<IEnumerable<AlunoDto>> GetAlunosByTurmaIdAsync(Guid turmaId);
         Task<IEnumerable<TurmaDto>> GetTurmasByAlunoIdAsync(Guid alunoId);
         Task<ResultadoOperacao> DeactivateAlunoTurmaAsync(Guid alunoId, Guid turmaId);
+        Task<ResultadoOperacao> UpdateAlunoTurmaAsync(Guid alunoId, Guid turmaId, AlunoTurmaDto alunoTurmaDto);
+        Task<AlunoTurmaDto> GetAlunoTurmaByAlunoIdAndTurmaIdAsync(Guid alunoId, Guid turmaId);
     }
 }

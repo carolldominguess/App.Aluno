@@ -24,6 +24,7 @@ namespace Fiap.App.Aluno.WebApi.Configs
             #region Services
             services.AddScoped<IAlunoService, AlunoService>();
             services.AddScoped<ITurmaService, TurmaService>();
+            services.AddScoped<IAlunoTurmaService, AlunoTurmaService>();
             #endregion
 
             services.AddScoped<ISenhaHasher, SenhaHasher>();

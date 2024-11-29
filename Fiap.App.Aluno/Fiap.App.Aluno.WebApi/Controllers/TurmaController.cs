@@ -13,7 +13,6 @@ public class TurmaController : ControllerBase
         _turmaService = turmaService;
     }
 
-    // Adiciona uma nova turma
     [HttpPost]
     public async Task<IActionResult> AddTurma([FromBody] TurmaDto turmaDto)
     {
@@ -25,7 +24,6 @@ public class TurmaController : ControllerBase
         return Ok(resultado.Mensagem);
     }
 
-    // Obtém todas as turmas
     [HttpGet]
     public async Task<IActionResult> GetAllTurmas()
     {
@@ -33,7 +31,6 @@ public class TurmaController : ControllerBase
         return Ok(turmas);
     }
 
-    // Obtém uma turma específica pelo ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTurmaById(Guid id)
     {
@@ -45,7 +42,6 @@ public class TurmaController : ControllerBase
         return Ok(turma);
     }
 
-    // Atualiza uma turma existente
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTurma(Guid id, [FromBody] TurmaDto turmaDto)
     {
@@ -57,7 +53,6 @@ public class TurmaController : ControllerBase
         return Ok(resultado.Mensagem);
     }
 
-    // Desativa uma turma
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeactivateTurma(Guid id)
     {

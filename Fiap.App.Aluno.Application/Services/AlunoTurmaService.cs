@@ -22,38 +22,41 @@ public class AlunoTurmaService : IAlunoTurmaService
 
     public async Task<ResultadoOperacao> AddAlunoTurmaAsync(AlunoTurmaDto alunoTurmaDto)
     {
-        // Verifica se o aluno existe
-        var aluno = await _alunoRepository.GetAlunoByIdAsync(alunoTurmaDto.AlunoId);
-        if (aluno == null)
+        try
         {
-            return new ResultadoOperacao(false, "Aluno não encontrado.");
+            var aluno = await _alunoRepository.GetAlunoByIdAsync(alunoTurmaDto.AlunoId);
+            if (aluno == null)
+            {
+                return new ResultadoOperacao(false, "Aluno não encontrado.");
+            }
+
+            var turma = await _turmaRepository.GetTurmaByIdAsync(alunoTurmaDto.TurmaId);
+            if (turma == null)
+            {
+                return new ResultadoOperacao(false, "Turma não encontrada.");
+            }
+
+            var alunoTurmaExistente = await _alunoTurmaRepository.GetAlunoTurmaByAlunoIdAndTurmaIdAsync(alunoTurmaDto.AlunoId, alunoTurmaDto.TurmaId);
+            if (alunoTurmaExistente != null)
+            {
+                return new ResultadoOperacao(false, "Essa relação já existe.");
+            }
+
+            var alunoTurma = new AlunoTurma
+            {
+                AlunoId = alunoTurmaDto.AlunoId,
+                TurmaId = alunoTurmaDto.TurmaId,
+                DataCriacao = DateTime.Now,
+                Ativo = true
+            };
+
+            await _alunoTurmaRepository.AddAlunoTurmaAsync(alunoTurma);
+            return new ResultadoOperacao(true, "Relação criada com sucesso.");
         }
-
-        // Verifica se a turma existe
-        var turma = await _turmaRepository.GetTurmaByIdAsync(alunoTurmaDto.TurmaId);
-        if (turma == null)
+        catch (Exception ex)
         {
-            return new ResultadoOperacao(false, "Turma não encontrada.");
-        }
-
-        // Verifica se a relação já existe
-        var alunoTurmaExistente = await _alunoTurmaRepository.GetAlunoTurmaByAlunoIdAndTurmaIdAsync(alunoTurmaDto.AlunoId, alunoTurmaDto.TurmaId);
-        if (alunoTurmaExistente != null)
-        {
-            return new ResultadoOperacao(false, "Essa relação já existe.");
-        }
-
-        // Cria a nova relação
-        var alunoTurma = new AlunoTurma
-        {
-            AlunoId = alunoTurmaDto.AlunoId,
-            TurmaId = alunoTurmaDto.TurmaId,
-            DataCriacao = DateTime.Now,
-            Ativo = true
-        };
-
-        await _alunoTurmaRepository.AddAlunoTurmaAsync(alunoTurma);
-        return new ResultadoOperacao(true, "Relação criada com sucesso.");
+            return new ResultadoOperacao(false, "Ocorreu uma exceção não tratada");
+        }        
     }
 
     public async Task<IEnumerable<AlunoTurmaDto>> GetAllAlunosTurmasAsync()
@@ -61,8 +64,10 @@ public class AlunoTurmaService : IAlunoTurmaService
         var alunosTurmas = await _alunoTurmaRepository.GetAllAlunosTurmasAsync();
         return alunosTurmas.Select(at => new AlunoTurmaDto
         {
+            Id = at.Id,
             AlunoId = at.AlunoId,
-            TurmaId = at.TurmaId
+            TurmaId = at.TurmaId,
+            Ativo = at.Ativo
         });
     }
 
@@ -136,5 +141,53 @@ public class AlunoTurmaService : IAlunoTurmaService
 
         await _alunoTurmaRepository.DeactivateAsync(alunoId, turmaId);
         return new ResultadoOperacao(true, "Relação inativada com sucesso.");
+    }
+
+    public async Task<ResultadoOperacao> UpdateAlunoTurmaAsync(Guid alunoId, Guid turmaId, AlunoTurmaDto alunoTurmaDto)
+    {
+        try
+        {
+            var alunoTurma = await _alunoTurmaRepository.GetAlunoTurmaByAlunoIdAndTurmaIdAsync(alunoId, turmaId);
+
+            if (alunoTurma == null)
+            {
+                return new ResultadoOperacao(false, "Relação não encontrada.");
+            }
+
+            var relacaoExistente = await _alunoTurmaRepository.GetAlunoTurmaByAlunoIdAndTurmaIdAsync(alunoTurmaDto.AlunoId, alunoTurmaDto.TurmaId);
+            if (relacaoExistente != null && (relacaoExistente.AlunoId != alunoId || relacaoExistente.TurmaId != turmaId))
+            {
+                return new ResultadoOperacao(false, "Já existe uma relação com este Aluno e Turma.");
+            }
+
+            alunoTurma.AlunoId = alunoTurmaDto.AlunoId;
+            alunoTurma.TurmaId = alunoTurmaDto.TurmaId;
+            alunoTurma.DataModificacao = DateTime.Now;
+            alunoTurma.Ativo = true;
+
+            await _alunoTurmaRepository.UpdateAlunoTurmaAsync(alunoTurma);
+
+            return new ResultadoOperacao(true, "Relação atualizada com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            return new ResultadoOperacao(false, "Ocorreu um erro ao atualizar a relação.");
+        }
+    }
+
+    public async Task<AlunoTurmaDto> GetAlunoTurmaByAlunoIdAndTurmaIdAsync(Guid alunoId, Guid turmaId)
+    {
+        var alunoTurma = await _alunoTurmaRepository.GetAlunoTurmaByAlunoIdAndTurmaIdAsync(alunoId, turmaId);
+        if (alunoTurma == null)
+        {
+            return null;
+        }
+
+        return new AlunoTurmaDto
+        {
+            AlunoId = alunoTurma.AlunoId,
+            TurmaId = alunoTurma.TurmaId,
+            Ativo = alunoTurma.Ativo
+        };
     }
 }

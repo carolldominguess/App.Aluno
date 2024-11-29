@@ -1,4 +1,6 @@
-﻿namespace Fiap.App.Aluno.Domain.Interfaces
+﻿using Fiap.App.Aluno.Domain.Entidades;
+
+namespace Fiap.App.Aluno.Domain.Interfaces
 {
     public interface IAlunoTurmaRepository
     {
@@ -8,5 +10,6 @@
         Task<IEnumerable<Domain.Entidades.AlunoTurma>> GetAlunoTurmasByTurmaIdAsync(Guid turmaId);
         Task<Domain.Entidades.AlunoTurma> GetAlunoTurmaByAlunoIdAndTurmaIdAsync(Guid alunoId, Guid turmaId);
         Task DeactivateAsync(Guid alunoId, Guid turmaId);
+        Task UpdateAlunoTurmaAsync(AlunoTurma alunoTurma);
     }
 }

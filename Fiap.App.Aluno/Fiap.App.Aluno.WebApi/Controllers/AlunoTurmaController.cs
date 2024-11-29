@@ -15,9 +15,6 @@ namespace Fiap.App.Aluno.WebApi.Controllers
             _alunoTurmaService = alunoTurmaService;
         }
 
-        /// <summary>
-        /// Adiciona uma nova relação entre Aluno e Turma.
-        /// </summary>
         [HttpPost]
         public async Task<IActionResult> AddAlunoTurma([FromBody] AlunoTurmaDto alunoTurmaDto)
         {
@@ -31,9 +28,6 @@ namespace Fiap.App.Aluno.WebApi.Controllers
             return Ok(resultado.Mensagem);
         }
 
-        /// <summary>
-        /// Retorna todas as relações de Aluno e Turma.
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAllAlunosTurmas()
         {
@@ -41,9 +35,6 @@ namespace Fiap.App.Aluno.WebApi.Controllers
             return Ok(alunosTurmas);
         }
 
-        /// <summary>
-        /// Retorna todos os Alunos relacionados a uma Turma específica.
-        /// </summary>
         [HttpGet("Turma/{turmaId}")]
         public async Task<IActionResult> GetAlunosByTurmaId(Guid turmaId)
         {
@@ -58,9 +49,6 @@ namespace Fiap.App.Aluno.WebApi.Controllers
             }
         }
 
-        /// <summary>
-        /// Retorna todas as Turmas relacionadas a um Aluno específico.
-        /// </summary>
         [HttpGet("Aluno/{alunoId}")]
         public async Task<IActionResult> GetTurmasByAlunoId(Guid alunoId)
         {
@@ -75,9 +63,6 @@ namespace Fiap.App.Aluno.WebApi.Controllers
             }
         }
 
-        /// <summary>
-        /// Inativa uma relação entre Aluno e Turma.
-        /// </summary>
         [HttpDelete("{alunoId}/{turmaId}")]
         public async Task<IActionResult> DeactivateAlunoTurma(Guid alunoId, Guid turmaId)
         {
@@ -89,6 +74,31 @@ namespace Fiap.App.Aluno.WebApi.Controllers
             }
 
             return Ok(resultado.Mensagem);
+        }
+
+        [HttpPut("{alunoId}/{turmaId}")]
+        public async Task<IActionResult> UpdateAlunoTurma(Guid alunoId, Guid turmaId, [FromBody] AlunoTurmaDto alunoTurmaDto)
+        {
+            var resultado = await _alunoTurmaService.UpdateAlunoTurmaAsync(alunoId, turmaId, alunoTurmaDto);
+
+            if (!resultado.Sucesso)
+            {
+                return BadRequest(resultado.Mensagem);
+            }
+
+            return Ok(resultado.Mensagem);
+        }
+
+        [HttpGet("{alunoId}/{turmaId}")]
+        public async Task<IActionResult> GetAlunoTurma(Guid alunoId, Guid turmaId)
+        {
+            var alunoTurma = await _alunoTurmaService.GetAlunoTurmaByAlunoIdAndTurmaIdAsync(alunoId, turmaId);
+            if (alunoTurma == null)
+            {
+                return NotFound("Relação Aluno-Turma não encontrada.");
+            }
+
+            return Ok(alunoTurma);
         }
     }
 }

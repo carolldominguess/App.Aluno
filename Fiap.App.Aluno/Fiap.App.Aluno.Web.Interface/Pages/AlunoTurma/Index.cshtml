@@ -1,0 +1,45 @@
+﻿@page
+@model Fiap.App.Aluno.Web.Interface.Pages.AlunoTurma.IndexModel
+@{
+    ViewData["Title"] = "Lista de Relações Aluno-Turma";
+}
+
+<h1 class="mb-4">Relações Aluno-Turma</h1>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}
+
+<a class="btn btn-primary mb-3" asp-page="./Create">Nova Relação</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Aluno</th>
+            <th>Turma</th>
+            <th>Ativo</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var relacao in Model.AlunoTurmas)
+        {
+            <tr>
+                <td>@relacao.AlunoNome</td>
+                <td>@relacao.TurmaNome</td>
+                <td>@(relacao.Ativo ? "Sim" : "Não")</td>
+                <td>
+                    <a class="btn btn-info" asp-page="./Edit" asp-route-alunoId="@relacao.AlunoId" asp-route-turmaId="@relacao.TurmaId">Editar</a>
+                    <form method="post" asp-page-handler="Inactivate" class="d-inline">
+                        <input type="hidden" name="alunoId" value="@relacao.AlunoId" />
+                        <input type="hidden" name="turmaId" value="@relacao.TurmaId" />
+                        <button type="submit" class="btn btn-danger">Inativar</button>
+                    </form>                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -77,7 +77,7 @@ namespace Fiap.App.Aluno.Application.Services
                 }
 
                 var turmaComMesmoNome = await _turmaRepository.GetByNomeAsync(turmaDto.Nome);
-                if (turmaComMesmoNome != null && turmaComMesmoNome.Select(t => t.Id).Contains(id))
+                if (turmaComMesmoNome.Any() && !turmaComMesmoNome.Select(t => t.Id).Contains(id))
                 {
                     return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
                 }
