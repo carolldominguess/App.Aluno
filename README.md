@@ -44,7 +44,7 @@ Certifique-se de que o banco de dados **MSSQLLocalDB** esteja configurado corret
 
 ### Alunos
 - Cadastro e edição de alunos com validação de dados.
-- Listagem com filtros e ações de inativação.
+- Listagem e ações de inativação.
 
 ### Turmas
 - Gerenciamento de turmas com validação de nomes exclusivos.
