@@ -24,66 +24,82 @@ namespace Fiap.App.Aluno.Application.Services
 
         public async Task<ResultadoOperacao> AddAlunoAsync(AlunoDto alunoDto)
         {
-            if (!_senhaValidator.ValidarSenha(new string(alunoDto.Senha)))
+            try
             {
-                return new ResultadoOperacao(false, "A senha não atende aos requisitos de segurança.");
+                if (!_senhaValidator.ValidarSenha(new string(alunoDto.Senha)))
+                {
+                    return new ResultadoOperacao(false, "A senha não atende aos requisitos de segurança.");
+                }
+
+                var hashSenha = _senhaHasher.CriarHash(alunoDto.Senha);
+
+                var aluno = _mapper.Map<Domain.Entidades.Aluno>(alunoDto);
+
+                var validate = new AlunoValidator().Validate(aluno);
+
+                if (!validate.IsValid)
+                {
+                    return new ResultadoOperacao(false, "Aluno invalido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
+                }
+
+                aluno.Id = Guid.NewGuid();
+                aluno.DataCriacao = DateTime.Now;
+                aluno.Ativo = true;
+                aluno.Senha = hashSenha;
+
+                await _alunoRepository.AddAlunoAsync(aluno);
+
+                return new ResultadoOperacao(true, "Aluno adicionado com sucesso");
             }
-
-            var hashSenha = _senhaHasher.CriarHash(new string(alunoDto.Senha));
-
-            var aluno = _mapper.Map<Domain.Entidades.Aluno>(alunoDto);
-
-            var validate = new AlunoValidator().Validate(aluno);
-
-            if (!validate.IsValid)
+            catch (Exception ex)
             {
-                return new ResultadoOperacao(false, "Aluno invalido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
-            }
-
-            var dataCriacao = DateTime.Now;
-            aluno.DataCriacao = dataCriacao;
-            aluno.Ativo = true;
-
-            await _alunoRepository.AddAlunoAsync(aluno);
-
-            return new ResultadoOperacao(true, "Aluno adicionado com sucesso");
+                return new ResultadoOperacao(false, "Ocorreu uma exceção não tratada");
+            }            
         }
 
         public async Task<ResultadoOperacao> UpdateAlunoAsync(Guid id, AlunoDto alunoDto)
         {
-            var alunoExistente = await _alunoRepository.GetAlunoByIdAsync(id);
-            if (alunoExistente == null)
+            try
             {
-                return new ResultadoOperacao(false, "Aluno não encontrado.");
-            }
+                var alunoExistente = await _alunoRepository.GetAlunoByIdAsync(id);
+                if (alunoExistente == null)
+                {
+                    return new ResultadoOperacao(false, "Aluno não encontrado.");
+                }
 
-            if (alunoDto.Senha != null && !_senhaValidator.ValidarSenha(new string(alunoDto.Senha)))
+                if (alunoDto.Senha != null && !_senhaValidator.ValidarSenha(new string(alunoDto.Senha)))
+                {
+                    return new ResultadoOperacao(false, "A senha não atende aos requisitos de segurança.");
+                }
+
+                var alunoAtualizado = _mapper.Map<Domain.Entidades.Aluno>(alunoDto);
+                alunoAtualizado.Id = id;
+
+                if (alunoDto.Senha != null)
+                {
+                    alunoAtualizado.Senha = _senhaHasher.CriarHash(new string(alunoDto.Senha));
+                }
+                else
+                {
+                    alunoAtualizado.Senha = alunoExistente.Senha;
+                }
+
+                var validate = new AlunoValidator().Validate(alunoAtualizado);
+                if (!validate.IsValid)
+                {
+                    return new ResultadoOperacao(false, "Aluno inválido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
+                }
+
+                alunoAtualizado.DataModificacao = DateTime.Now;
+                alunoAtualizado.Ativo = true;
+
+                await _alunoRepository.UpdateAlunoAsync(alunoAtualizado);
+                return new ResultadoOperacao(true, "Aluno atualizado com sucesso.");
+            }
+            catch (Exception)
             {
-                return new ResultadoOperacao(false, "A senha não atende aos requisitos de segurança.");
-            }
-
-            var alunoAtualizado = _mapper.Map<Domain.Entidades.Aluno>(alunoDto);
-            alunoAtualizado.Id = id;
-
-            if (alunoDto.Senha != null)
-            {
-                alunoAtualizado.Senha = _senhaHasher.CriarHash(new string(alunoDto.Senha));
-            }
-            else
-            {
-                alunoAtualizado.Senha = alunoExistente.Senha;
-            }
-
-            var validate = new AlunoValidator().Validate(alunoAtualizado);
-            if (!validate.IsValid)
-            {
-                return new ResultadoOperacao(false, "Aluno inválido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
-            }
-
-            alunoAtualizado.DataModificacao = DateTime.Now;
-
-            await _alunoRepository.UpdateAlunoAsync(alunoAtualizado);
-            return new ResultadoOperacao(true, "Aluno atualizado com sucesso.");
+                return new ResultadoOperacao(false, "Ocorreu uma exceção não tratada");
+            }            
         }
 
         public async Task<AlunoDto> GetAlunoByIdAsync(Guid id)

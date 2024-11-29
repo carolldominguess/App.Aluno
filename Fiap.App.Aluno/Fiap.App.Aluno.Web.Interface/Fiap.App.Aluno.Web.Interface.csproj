@@ -16,8 +16,4 @@
     <ProjectReference Include="..\Fiap.App.Aluno.Infra\Fiap.App.Aluno.Infra.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Alunos\" />
-  </ItemGroup>
-
 </Project>

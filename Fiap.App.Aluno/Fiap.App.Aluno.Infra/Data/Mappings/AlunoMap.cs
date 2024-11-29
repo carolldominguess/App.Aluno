@@ -22,7 +22,7 @@ namespace Fiap.App.Aluno.Infra.Data.Mappings
             builder.Property(p => p.Senha)
                 .HasColumnName("senha")
                 .IsRequired()
-                .HasColumnType("varchar(60)");
+                .HasColumnType("varchar(255)");
 
             builder.Property(t => t.Ativo)
                 .HasColumnType("bit")

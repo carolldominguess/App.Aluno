@@ -38,6 +38,7 @@ namespace Fiap.App.Aluno.Application.Services
                     return new ResultadoOperacao(false, "Turma invalida: " + string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
                 }
 
+                turma.Id = Guid.NewGuid();
                 turma.DataCriacao = DateTime.Now;
                 turma.Ativo = true;
 
@@ -46,7 +47,7 @@ namespace Fiap.App.Aluno.Application.Services
             }
             catch (Exception ex)
             {
-                return new ResultadoOperacao(false, "Erro: " + string.Join("; ", ex.InnerException?.Message, ex.StackTrace));
+                return new ResultadoOperacao(false, "Ocorreu uma exceção não tratada");
             }
             
         }
@@ -67,32 +68,39 @@ namespace Fiap.App.Aluno.Application.Services
 
         public async Task<ResultadoOperacao> UpdateTurmaAsync(Guid id, TurmaDto turmaDto)
         {
-            var turmaExistente = await _turmaRepository.GetTurmaByIdAsync(id);
-            if (turmaExistente == null)
+            try
             {
-                return new ResultadoOperacao(false, "Turma não encontrada.");
-            }
+                var turmaExistente = await _turmaRepository.GetTurmaByIdAsync(id);
+                if (turmaExistente == null)
+                {
+                    return new ResultadoOperacao(false, "Turma não encontrada.");
+                }
 
-            var turmaComMesmoNome = await _turmaRepository.GetByNomeAsync(turmaDto.Nome);
-            if (turmaComMesmoNome != null && turmaComMesmoNome.Select(t => t.Id).Contains(id))
+                var turmaComMesmoNome = await _turmaRepository.GetByNomeAsync(turmaDto.Nome);
+                if (turmaComMesmoNome != null && turmaComMesmoNome.Select(t => t.Id).Contains(id))
+                {
+                    return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
+                }
+
+                turmaExistente.Nome = turmaDto.Nome;
+                turmaExistente.Ano = turmaDto.Ano;
+                turmaExistente.DataModificacao = DateTime.Now;
+                turmaExistente.Ativo = true;
+
+                var validationResult = new TurmaValidator().Validate(turmaExistente);
+
+                if (!validationResult.IsValid)
+                {
+                    return new ResultadoOperacao(false, "Turma invalida: " + string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+                }
+
+                await _turmaRepository.UpdateAsync(turmaExistente);
+                return new ResultadoOperacao(true, "Turma atualizada com sucesso.");
+            }
+            catch (Exception ex)
             {
-                return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
-            }
-
-            turmaExistente.Nome = turmaDto.Nome;
-            turmaExistente.Ano = turmaDto.Ano;
-            turmaExistente.DataModificacao = DateTime.Now;
-            turmaExistente.Ativo = true;
-
-            var validationResult = new TurmaValidator().Validate(turmaExistente);
-
-            if (!validationResult.IsValid)
-            {
-                return new ResultadoOperacao(false, "Turma invalida: " + string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
-            }
-
-            await _turmaRepository.UpdateAsync(turmaExistente);
-            return new ResultadoOperacao(true, "Turma atualizada com sucesso.");
+                return new ResultadoOperacao(false, "Ocorreu uma exceção não tratada");
+            }            
         }
 
         public async Task<ResultadoOperacao> DeactivateTurmaAsync(Guid id)

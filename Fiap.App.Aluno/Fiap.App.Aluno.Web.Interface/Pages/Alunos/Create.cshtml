@@ -1,0 +1,47 @@
+﻿@page
+@model Fiap.App.Aluno.Web.Interface.Pages.Alunos.CreateModel
+@{
+    ViewData["Title"] = "Cadastrar Novo Aluno";
+}
+
+<h1 class="mb-4">Cadastrar Novo Aluno</h1>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}
+
+<form method="post" class="w-50 mx-auto">
+    <div class="row mb-3">
+        <label for="Nome" class="col-sm-3 col-form-label text-end">Nome:</label>
+        <div class="col-sm-9">
+            <input asp-for="Aluno.Nome" class="form-control" />
+            <span asp-validation-for="Aluno.Nome" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="Usuario" class="col-sm-3 col-form-label text-end">Usuário:</label>
+        <div class="col-sm-9">
+            <input asp-for="Aluno.Usuario" class="form-control" />
+            <span asp-validation-for="Aluno.Usuario" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="Senha" class="col-sm-3 col-form-label text-end">Senha:</label>
+        <div class="col-sm-9">
+            <input asp-for="Aluno.Senha" type="password" class="form-control" />
+            <span asp-validation-for="Aluno.Senha" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-9">
+            <button type="submit" class="btn btn-success">Salvar</button>
+        </div>
+    </div>
+</form>
