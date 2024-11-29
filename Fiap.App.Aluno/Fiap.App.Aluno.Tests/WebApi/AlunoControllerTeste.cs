@@ -21,16 +21,17 @@ namespace Fiap.App.Aluno.Tests.WebApi.Controllers
         [Fact]
         public async Task AddAluno_DeveRetornarOk_QuandoSucesso()
         {
-            var alunoComTurmaDto = new AlunoComTurmaDto
+            var alunoDto = new AlunoDto
             {
-                Aluno = new AlunoDto { Nome = "João", Usuario = "joaosilva", Senha = "SenhaForte123" },
-                AlunoTurma = new AlunoTurmaDto { TurmaId = Guid.NewGuid() }
+                Nome = "João",
+                Usuario = "joaosilva",
+                Senha = "SenhaForte123"
             };
 
-            _alunoServiceMock.Setup(s => s.AddAlunoAsync(alunoComTurmaDto.Aluno, alunoComTurmaDto.AlunoTurma))
+            _alunoServiceMock.Setup(s => s.AddAlunoAsync(alunoDto))
                              .ReturnsAsync(new ResultadoOperacao(true, "Aluno adicionado com sucesso."));
 
-            var result = await _controller.AddAluno(alunoComTurmaDto);
+            var result = await _controller.AddAluno(alunoDto);
 
             result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
@@ -40,16 +41,12 @@ namespace Fiap.App.Aluno.Tests.WebApi.Controllers
         [Fact]
         public async Task AddAluno_DeveRetornarBadRequest_QuandoFalha()
         {
-            var alunoComTurmaDto = new AlunoComTurmaDto
-            {
-                Aluno = new AlunoDto { Nome = "João", Usuario = "joaosilva", Senha = "SenhaFraca" },
-                AlunoTurma = new AlunoTurmaDto { TurmaId = Guid.NewGuid() }
-            };
+            var alunoDto = new AlunoDto { Nome = "João", Usuario = "joaosilva", Senha = "SenhaFraca" };
 
-            _alunoServiceMock.Setup(s => s.AddAlunoAsync(alunoComTurmaDto.Aluno, alunoComTurmaDto.AlunoTurma))
+            _alunoServiceMock.Setup(s => s.AddAlunoAsync(alunoDto))
                              .ReturnsAsync(new ResultadoOperacao(false, "Erro ao adicionar aluno."));
 
-            var result = await _controller.AddAluno(alunoComTurmaDto);
+            var result = await _controller.AddAluno(alunoDto);
 
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;

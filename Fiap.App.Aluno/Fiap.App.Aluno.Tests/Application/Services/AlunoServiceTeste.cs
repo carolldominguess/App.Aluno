@@ -12,8 +12,6 @@ namespace Fiap.App.Aluno.Tests.Application.Services
     public class AlunoServiceTeste
     {
         private readonly Mock<IAlunoRepository> _alunoRepositoryMock;
-        private readonly Mock<IAlunoTurmaRepository> _alunoTurmaRepositoryMock;
-        private readonly Mock<ITurmaRepository> _turmaRepositoryMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<ISenhaHasher> _senhaHasherMock;
         private readonly Mock<ISenhaValidator> _senhaValidatorMock;
@@ -22,16 +20,12 @@ namespace Fiap.App.Aluno.Tests.Application.Services
         public AlunoServiceTeste()
         {
             _alunoRepositoryMock = new Mock<IAlunoRepository>();
-            _alunoTurmaRepositoryMock = new Mock<IAlunoTurmaRepository>();
-            _turmaRepositoryMock = new Mock<ITurmaRepository>();
             _mapperMock = new Mock<IMapper>();
             _senhaHasherMock = new Mock<ISenhaHasher>();
             _senhaValidatorMock = new Mock<ISenhaValidator>();
 
             _alunoService = new AlunoService(
                 _alunoRepositoryMock.Object,
-                _alunoTurmaRepositoryMock.Object,
-                _turmaRepositoryMock.Object,
                 _mapperMock.Object,
                 _senhaHasherMock.Object,
                 _senhaValidatorMock.Object
@@ -46,7 +40,7 @@ namespace Fiap.App.Aluno.Tests.Application.Services
 
             _senhaValidatorMock.Setup(s => s.ValidarSenha(It.IsAny<string>())).Returns(false);
 
-            var resultado = await _alunoService.AddAlunoAsync(alunoDto, alunoTurmaDto);
+            var resultado = await _alunoService.AddAlunoAsync(alunoDto);
 
             resultado.Sucesso.Should().BeFalse();
             resultado.Mensagem.Should().Be("A senha não atende aos requisitos de segurança.");
@@ -62,29 +56,10 @@ namespace Fiap.App.Aluno.Tests.Application.Services
             _senhaValidatorMock.Setup(s => s.ValidarSenha(It.IsAny<string>())).Returns(true);
             _mapperMock.Setup(m => m.Map<App.Aluno.Domain.Entidades.Aluno>(alunoDto)).Returns(aluno);
 
-            var resultado = await _alunoService.AddAlunoAsync(alunoDto, alunoTurmaDto);
+            var resultado = await _alunoService.AddAlunoAsync(alunoDto);
 
             resultado.Sucesso.Should().BeFalse();
             resultado.Mensagem.Should().StartWith("Aluno invalido:");
-        }
-
-        [Fact]
-        public async Task AddAlunoAsync_DeveRetornarErro_SeTurmaNaoExistir()
-        {
-            var alunoDto = new AlunoDto { Nome = "João", Usuario = "joaosilva", Senha = "SenhaForte123" };
-            var aluno = new App.Aluno.Domain.Entidades.Aluno { Nome = "João", Usuario = "joaosilva", Senha = "SenhaForte123" };
-            var alunoTurmaDto = new AlunoTurmaDto { TurmaId = Guid.NewGuid() };
-            var alunoTurma = new AlunoTurma { TurmaId = Guid.NewGuid() };
-
-            _senhaValidatorMock.Setup(s => s.ValidarSenha(It.IsAny<string>())).Returns(true);
-            _mapperMock.Setup(m => m.Map<App.Aluno.Domain.Entidades.Aluno>(alunoDto)).Returns(aluno);
-            _mapperMock.Setup(m => m.Map<App.Aluno.Domain.Entidades.AlunoTurma>(alunoTurmaDto)).Returns(alunoTurma);
-            _turmaRepositoryMock.Setup(t => t.GetTurmaByIdAsync(It.IsAny<Guid>())).ReturnsAsync(It.IsAny<Turma>());
-
-            var resultado = await _alunoService.AddAlunoAsync(alunoDto, alunoTurmaDto);
-
-            resultado.Sucesso.Should().BeFalse();
-            resultado.Mensagem.Should().Be("Turma vinculada não existe!");
         }
 
         [Fact]
@@ -99,11 +74,9 @@ namespace Fiap.App.Aluno.Tests.Application.Services
             _senhaHasherMock.Setup(s => s.CriarHash(It.IsAny<string>())).Returns("SenhaHash");
             _mapperMock.Setup(m => m.Map<App.Aluno.Domain.Entidades.Aluno>(alunoDto)).Returns(aluno);
             _mapperMock.Setup(m => m.Map<AlunoTurma>(alunoTurmaDto)).Returns(alunoTurma);
-            _turmaRepositoryMock.Setup(t => t.GetTurmaByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Turma());
             _alunoRepositoryMock.Setup(a => a.AddAlunoAsync(aluno)).Returns(Task.CompletedTask);
-            _alunoTurmaRepositoryMock.Setup(at => at.AddAlunoTurmaAsync(alunoTurma)).Returns(Task.CompletedTask);
 
-            var resultado = await _alunoService.AddAlunoAsync(alunoDto, alunoTurmaDto);
+            var resultado = await _alunoService.AddAlunoAsync(alunoDto);
 
             resultado.Sucesso.Should().BeTrue();
             resultado.Mensagem.Should().Be("Aluno adicionado com sucesso");
@@ -128,8 +101,6 @@ namespace Fiap.App.Aluno.Tests.Application.Services
 
             _alunoRepositoryMock.Setup(a => a.GetAlunoByIdAsync(alunoId)).ReturnsAsync(aluno);
             _alunoRepositoryMock.Setup(a => a.DeactivateAlunoAsync(alunoId)).Returns(Task.CompletedTask);
-            _alunoTurmaRepositoryMock.Setup(at => at.GetAlunoTurmasByAlunoIdAsync(alunoId)).ReturnsAsync(turmasRelacionadas);
-            _alunoTurmaRepositoryMock.Setup(at => at.DeactivateAsync(alunoId, It.IsAny<Guid>())).Returns(Task.CompletedTask);
 
             var resultado = await _alunoService.DeactivateAlunoAsync(alunoId);
 

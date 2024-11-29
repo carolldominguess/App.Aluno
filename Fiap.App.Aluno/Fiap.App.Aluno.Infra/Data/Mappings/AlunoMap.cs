@@ -24,6 +24,10 @@ namespace Fiap.App.Aluno.Infra.Data.Mappings
                 .IsRequired()
                 .HasColumnType("varchar(60)");
 
+            builder.Property(t => t.Ativo)
+                .HasColumnType("bit")
+                .IsRequired();
+
             builder.ToTable("alunos");
         }
     }

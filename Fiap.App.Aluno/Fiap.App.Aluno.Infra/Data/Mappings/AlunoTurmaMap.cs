@@ -20,6 +20,10 @@ namespace Fiap.App.Aluno.Infra.Data.Mappings
                 .WithMany()
                 .HasForeignKey(at => at.TurmaId);
 
+            builder.Property(t => t.Ativo)
+                .HasColumnType("bit")
+                .IsRequired();
+
             builder.ToTable("aluno_turma");
         }
     }

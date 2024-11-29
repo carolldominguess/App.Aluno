@@ -21,29 +21,40 @@ namespace Fiap.App.Aluno.Application.Services
 
         public async Task<ResultadoOperacao> AddTurmaAsync(TurmaDto turmaDto)
         {
-            var turma = _mapper.Map<Turma>(turmaDto);
-
-            var turmaExistente = await _turmaRepository.GetByNomeAsync(turma.Nome);
-            if (turmaExistente != null && turmaExistente.Any())
+            try
             {
-                return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
+                var turma = _mapper.Map<Turma>(turmaDto);
+
+                var turmaExistente = await _turmaRepository.GetByNomeAsync(turma.Nome);
+                if (turmaExistente != null && turmaExistente.Any())
+                {
+                    return new ResultadoOperacao(false, "Já existe uma turma com este nome.");
+                }
+
+                var validationResult = new TurmaValidator().Validate(turma);
+
+                if (!validationResult.IsValid)
+                {
+                    return new ResultadoOperacao(false, "Turma invalida: " + string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+                }
+
+                turma.DataCriacao = DateTime.Now;
+                turma.Ativo = true;
+
+                await _turmaRepository.AddTurmaAsync(turma);
+                return new ResultadoOperacao(true, "Turma adicionada com sucesso.");
             }
-
-            var validationResult = new TurmaValidator().Validate(turma);
-
-            if (!validationResult.IsValid)
+            catch (Exception ex)
             {
-                return new ResultadoOperacao(false, "Turma invalida: " + string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+                return new ResultadoOperacao(false, "Erro: " + string.Join("; ", ex.InnerException?.Message, ex.StackTrace));
             }
-
-            await _turmaRepository.AddTurmaAsync(turma);
-            return new ResultadoOperacao(true, "Turma adicionada com sucesso.");
+            
         }
 
         public async Task<IEnumerable<TurmaDto>> GetAllTurmasAsync()
         {
             var turmas = await _turmaRepository.GetAllTurmasAsync();
-            return turmas.Select(t => new TurmaDto { Nome = t.Nome, Ano = t.Ano });
+            return _mapper.Map<IEnumerable<TurmaDto>>(turmas);
         }
 
         public async Task<TurmaDto> GetTurmaByIdAsync(Guid id)
@@ -51,7 +62,7 @@ namespace Fiap.App.Aluno.Application.Services
             var turma = await _turmaRepository.GetTurmaByIdAsync(id);
             if (turma == null) return null;
 
-            return new TurmaDto { Nome = turma.Nome, Ano = turma.Ano };
+            return _mapper.Map<TurmaDto>(turma);
         }
 
         public async Task<ResultadoOperacao> UpdateTurmaAsync(Guid id, TurmaDto turmaDto)
@@ -71,7 +82,7 @@ namespace Fiap.App.Aluno.Application.Services
             turmaExistente.Nome = turmaDto.Nome;
             turmaExistente.Ano = turmaDto.Ano;
             turmaExistente.DataModificacao = DateTime.Now;
-
+            turmaExistente.Ativo = true;
 
             var validationResult = new TurmaValidator().Validate(turmaExistente);
 
@@ -91,6 +102,8 @@ namespace Fiap.App.Aluno.Application.Services
             {
                 return new ResultadoOperacao(false, "Turma não encontrada.");
             }
+
+            turma.DataModificacao = DateTime.Now;
 
             await _turmaRepository.DeactivateAsync(id);
             return new ResultadoOperacao(true, "Turma desativada com sucesso.");

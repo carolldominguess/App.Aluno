@@ -1,6 +1,8 @@
 using Fiap.App.Aluno.Infra.Context;
 using Fiap.App.Aluno.WebApi.Configs;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,12 @@ builder.Configuration
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 DependencyInjectionConfig.ResolveDependencies(builder.Services);
+
+builder.Services.AddScoped<IDbConnection>(sp =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    return new SqlConnection(connectionString);
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

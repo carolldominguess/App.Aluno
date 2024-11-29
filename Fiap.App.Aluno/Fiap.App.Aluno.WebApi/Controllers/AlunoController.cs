@@ -14,9 +14,9 @@ public class AlunoController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAluno([FromBody] AlunoComTurmaDto alunoComTurmaDto)    
+    public async Task<IActionResult> AddAluno([FromBody] AlunoDto alunoDto)    
     {
-        var resultado = await _alunoService.AddAlunoAsync(alunoComTurmaDto.Aluno, alunoComTurmaDto.AlunoTurma);
+        var resultado = await _alunoService.AddAlunoAsync(alunoDto);
         if (!resultado.Sucesso)
         {
             return BadRequest(resultado.Mensagem);

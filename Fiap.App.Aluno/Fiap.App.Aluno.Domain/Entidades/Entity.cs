@@ -5,7 +5,6 @@
         protected Entity()
         {
             Id = Guid.NewGuid();
-            DataCriacao = DateTime.Now;
         }
 
         public Guid Id { get; set; }

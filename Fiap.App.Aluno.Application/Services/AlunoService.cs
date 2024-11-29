@@ -2,7 +2,6 @@
 using Fiap.App.Aluno.Application.Interfaces;
 using Fiap.App.Aluno.Application.Model;
 using Fiap.App.Aluno.Application.Utils;
-using Fiap.App.Aluno.Domain.Entidades;
 using Fiap.App.Aluno.Domain.Entidades.Validations;
 using Fiap.App.Aluno.Domain.Interfaces;
 
@@ -11,23 +10,19 @@ namespace Fiap.App.Aluno.Application.Services
     public class AlunoService : IAlunoService
     {
         private readonly IAlunoRepository _alunoRepository;
-        private readonly IAlunoTurmaRepository _alunoTurmaRepository;
-        private readonly ITurmaRepository _turmaRepository;
         private readonly IMapper _mapper;
         private readonly ISenhaHasher _senhaHasher;
         private readonly ISenhaValidator _senhaValidator;
 
-        public AlunoService(IAlunoRepository alunoRepository, IAlunoTurmaRepository alunoTurmaRepository, ITurmaRepository turmaRepository, IMapper mapper, ISenhaHasher senhaHasher, ISenhaValidator senhaValidator)
+        public AlunoService(IAlunoRepository alunoRepository, IMapper mapper, ISenhaHasher senhaHasher, ISenhaValidator senhaValidator)
         {
             _alunoRepository = alunoRepository;
-            _alunoTurmaRepository = alunoTurmaRepository;
-            _turmaRepository = turmaRepository;
             _mapper = mapper;
             _senhaHasher = senhaHasher;
             _senhaValidator = senhaValidator;
         }
 
-        public async Task<ResultadoOperacao> AddAlunoAsync(AlunoDto alunoDto, AlunoTurmaDto alunoTurmaDto)
+        public async Task<ResultadoOperacao> AddAlunoAsync(AlunoDto alunoDto)
         {
             if (!_senhaValidator.ValidarSenha(new string(alunoDto.Senha)))
             {
@@ -45,18 +40,11 @@ namespace Fiap.App.Aluno.Application.Services
                 return new ResultadoOperacao(false, "Aluno invalido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
             }
 
-            var alunoTurma  = _mapper.Map<Domain.Entidades.AlunoTurma>(alunoTurmaDto);
-            alunoTurma.AlunoId = aluno.Id;
-
-            var turmaExistente = await _turmaRepository.GetTurmaByIdAsync(alunoTurma.TurmaId);
-
-            if (turmaExistente is null)
-            {
-                return new ResultadoOperacao(false, "Turma vinculada não existe!");
-            }
+            var dataCriacao = DateTime.Now;
+            aluno.DataCriacao = dataCriacao;
+            aluno.Ativo = true;
 
             await _alunoRepository.AddAlunoAsync(aluno);
-            await _alunoTurmaRepository.AddAlunoTurmaAsync(alunoTurma);
 
             return new ResultadoOperacao(true, "Aluno adicionado com sucesso");
         }
@@ -91,6 +79,8 @@ namespace Fiap.App.Aluno.Application.Services
             {
                 return new ResultadoOperacao(false, "Aluno inválido: " + string.Join("; ", validate.Errors.Select(e => e.ErrorMessage)));
             }
+
+            alunoAtualizado.DataModificacao = DateTime.Now;
 
             await _alunoRepository.UpdateAlunoAsync(alunoAtualizado);
             return new ResultadoOperacao(true, "Aluno atualizado com sucesso.");
@@ -127,12 +117,6 @@ namespace Fiap.App.Aluno.Application.Services
             }
 
             await _alunoRepository.DeactivateAlunoAsync(id);
-
-            var turmasRelacionadas = await _alunoTurmaRepository.GetAlunoTurmasByAlunoIdAsync(id);
-            foreach (var turma in turmasRelacionadas)
-            {
-                await _alunoTurmaRepository.DeactivateAsync(id, turma.Id);
-            }
 
             return new ResultadoOperacao(true, "Aluno desativado com sucesso.");
         }

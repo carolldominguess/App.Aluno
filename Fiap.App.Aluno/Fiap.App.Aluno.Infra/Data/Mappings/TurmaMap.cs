@@ -19,6 +19,10 @@ namespace Fiap.App.Aluno.Infra.Data.Mappings
                 .HasColumnName("ano")
                 .IsRequired();
 
+            builder.Property(t => t.Ativo)
+                .HasColumnType("bit")
+                .IsRequired();
+
             builder.ToTable("turmas");
         }
     }

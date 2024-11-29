@@ -21,15 +21,16 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
         public async Task AddTurmaAsync(Domain.Entidades.Turma turma)
         {
             var query = @"
-                INSERT INTO Turmas (Id, Nome, Ano, Ativo)
-                VALUES (@Id, @Nome, @Ano, @Ativo)";
+                INSERT INTO turmas (Id, Nome, Ano, Ativo, DataCriacao)
+                VALUES (@Id, @Nome, @Ano, @Ativo, @DataCriacao)";
 
             await dbConnection.ExecuteAsync(query, new
             {
                 turma.Id,
                 turma.Nome,
                 turma.Ano,
-                turma.Ativo
+                turma.Ativo,
+                turma.DataCriacao
             });
         }
 
@@ -71,13 +72,17 @@ namespace Fiap.App.Aluno.Infra.Data.Repository
             var query = @"
                 UPDATE turmas
                 SET nome = @Nome,
-                    ano = @Ano
+                    ano = @Ano,
+                    Ativo = @Ativo,
+                    DataModificacao = @DataModificacao
                 WHERE Id = @Id";
 
             await dbConnection.ExecuteAsync(query, new
             {
                 turma.Nome,
                 turma.Ano,
+                turma.Ativo,
+                turma.DataModificacao,
                 turma.Id
             });
         }
