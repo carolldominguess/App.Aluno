@@ -1,0 +1,6 @@
+@Fiap.App.Aluno.WebApi_HostAddress = http://localhost:5102
+
+GET {{Fiap.App.Aluno.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

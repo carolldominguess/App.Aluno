@@ -1,0 +1,51 @@
+﻿@page
+@model Fiap.App.Aluno.Web.Interface.Pages.Turmas.IndexModel
+@{
+    ViewData["Title"] = "Lista de Turmas";
+}
+
+<h1>Turmas</h1>
+
+<a class="btn btn-primary" asp-page="./Create">Cadastrar Nova Turma</a>
+
+<table class="table table-responsive table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Ano</th>
+            <th>Ativo</th>
+            <th>Data Criação</th>
+            <th>Data Modificação</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var turma in Model.Turmas)
+        {
+            <tr>
+                <td>@turma.Nome</td>
+                <td>@turma.Ano</td>
+                <td>@(turma.Ativo ? "Sim" : "Não")</td>
+                <td>@turma.DataCriacao</td>
+                <td>@turma.DataModificacao</td>
+                <td>
+                    <a class="btn btn-warning" asp-page="./Edit" asp-route-id="@turma.Id">Editar</a>
+                    @if (turma.Ativo)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@turma.Id" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Inativar</button>
+                        </form>
+                    }
+                    <a class="btn btn-secondary" asp-page="../Turmas/Details" asp-route-id="@turma.Id">Ver Alunos</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}

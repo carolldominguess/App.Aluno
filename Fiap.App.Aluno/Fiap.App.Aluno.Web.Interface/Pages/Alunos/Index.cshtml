@@ -1,0 +1,50 @@
+﻿@page
+@model Fiap.App.Aluno.Web.Interface.Pages.Alunos.IndexModel
+@{
+    ViewData["Title"] = "Lista de Alunos";
+}
+
+<h1>Alunos</h1>
+
+<a class="btn btn-primary" asp-page="./Create">Cadastrar Novo Aluno</a>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}
+
+<table class="table table-responsive table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Usuário</th>
+            <th>Ativo</th>
+            <th>Data Criação</th>
+            <th>Data Modificação</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var aluno in Model.Alunos)
+        {
+            <tr>
+                <td>@aluno.Nome</td>
+                <td>@aluno.Usuario</td>
+                <td>@(aluno.Ativo ? "Sim" : "Não")</td>
+                <td>@aluno.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@aluno.DataModificacao?.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    <a class="btn btn-warning" asp-page="./Edit" asp-route-id="@aluno.Id">Editar</a>
+                    @if (aluno.Ativo)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@aluno.Id" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Inativar</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

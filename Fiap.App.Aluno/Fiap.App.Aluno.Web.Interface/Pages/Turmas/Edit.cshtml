@@ -1,0 +1,39 @@
+﻿@page "{id:guid}"
+@model Fiap.App.Aluno.Web.Interface.Pages.Turmas.EditModel
+@{
+    ViewData["Title"] = "Editar Turma";
+}
+
+<h1 class="mb-4">Editar Turma</h1>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}
+
+<form method="post" class="w-50 mx-auto">
+    <div class="row mb-3">
+        <label for="Nome" class="col-sm-3 col-form-label text-end">Nome:</label>
+        <div class="col-sm-9">
+            <input asp-for="Turma.Nome" class="form-control" />
+            <span asp-validation-for="Turma.Nome" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="Ano" class="col-sm-3 col-form-label text-end">Ano:</label>
+        <div class="col-sm-9">
+            <input asp-for="Turma.Ano" type="number" class="form-control" />
+            <span asp-validation-for="Turma.Ano" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-9">
+            <button type="submit" class="btn btn-success">Salvar</button>
+        </div>
+    </div>
+</form>

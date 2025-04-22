@@ -1,0 +1,51 @@
+﻿@page
+@model Fiap.App.Aluno.Web.Interface.Pages.AlunoTurma.CreateModel
+@{
+    ViewData["Title"] = "Relacionar Aluno e Turma";
+}
+
+<h1 class="mb-4">Relacionar Aluno e Turma</h1>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}
+
+<form method="post" class="w-50 mx-auto">
+    <div class="row mb-3">
+        <label for="AlunoId" class="col-sm-3 col-form-label text-end">Aluno:</label>
+        <div class="col-sm-9">
+            <select asp-for="AlunoTurma.AlunoId" class="form-control">
+                <option value="">Selecione um Aluno</option>
+                @foreach (var aluno in Model.Alunos)
+                {
+                    <option value="@aluno.Id">@aluno.Nome</option>
+                }
+            </select>
+            <span asp-validation-for="AlunoTurma.AlunoId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="TurmaId" class="col-sm-3 col-form-label text-end">Turma:</label>
+        <div class="col-sm-9">
+            <select asp-for="AlunoTurma.TurmaId" class="form-control">
+                <option value="">Selecione uma Turma</option>
+                @foreach (var turma in Model.Turmas)
+                {
+                    <option value="@turma.Id">@turma.Nome</option>
+                }
+            </select>
+            <span asp-validation-for="AlunoTurma.TurmaId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-9">
+            <button type="submit" class="btn btn-success">Salvar</button>
+        </div>
+    </div>
+</form>

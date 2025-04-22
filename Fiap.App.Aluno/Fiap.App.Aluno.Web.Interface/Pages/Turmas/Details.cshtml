@@ -1,0 +1,46 @@
+﻿@page "{id:guid}"
+@model Fiap.App.Aluno.Web.Interface.Pages.Turmas.DetailsModel
+@{
+    ViewData["Title"] = "Detalhes da Turma";
+}
+
+<h1 class="mb-4">Detalhes da Turma</h1>
+
+@if (!string.IsNullOrEmpty(Model.Mensagem))
+{
+    <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+        @Model.Mensagem
+    </div>
+}
+
+<div class="mb-4">
+    <h4>Turma: @Model.Turma.Nome</h4>
+    <h5>Ano: @Model.Turma.Ano</h5>
+</div>
+
+<h3 class="mb-3">Alunos na Turma</h3>
+
+@if (Model.Alunos.Any())
+{
+    <table class="table table-bordered table-hover table-sm">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Usuário</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var aluno in Model.Alunos)
+            {
+                <tr>
+                    <td>@aluno.Nome</td>
+                    <td>@aluno.Usuario</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Não há alunos cadastrados nesta turma.</p>
+}
